@@ -1,0 +1,39 @@
+[project]
+name = "mcp-neo4j-graphrag"
+version = "0.3.0"
+description = "A unified Neo4j MCP server for GraphRAG: vector search, fulltext search, and search-augmented Cypher queries"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Jean-Marc Guerin"}
+]
+keywords = ["neo4j", "graphrag", "mcp", "vector-search", "knowledge-graph", "llm"]
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://github.com/YOUR_GITHUB_USERNAME/mcp-neo4j-graphrag"
+Repository = "https://github.com/YOUR_GITHUB_USERNAME/mcp-neo4j-graphrag"
+Issues = "https://github.com/YOUR_GITHUB_USERNAME/mcp-neo4j-graphrag/issues"
+dependencies = [
+    "fastmcp>=2.10.5",
+    "neo4j>=5.26.0",
+    "pydantic>=2.10.1",
+    "tiktoken>=0.11.0",
+    "openai>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pyright>=1.1.389",
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.20.3",
+    "ruff>=0.11.5",
+]
+
+[project.scripts]
+mcp-neo4j-graphrag = "mcp_neo4j_graphrag:main"
+
