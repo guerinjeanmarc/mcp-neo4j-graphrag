@@ -2,13 +2,13 @@ import json
 import logging
 from typing import Any, Literal, Optional
 
+import litellm
 from fastmcp.exceptions import ToolError
 from fastmcp.server import FastMCP
 from fastmcp.tools.tool import TextContent, ToolResult
 from mcp.types import ToolAnnotations
 from neo4j import AsyncDriver, AsyncGraphDatabase, Query, RoutingControl
 from neo4j.exceptions import ClientError, Neo4jError
-from openai import OpenAI
 from pydantic import Field
 
 from .utils import (
@@ -33,7 +33,6 @@ def _format_namespace(namespace: str) -> str:
 
 def create_mcp_server(
     neo4j_driver: AsyncDriver,
-    openai_client: OpenAI,
     embedding_model: str,
     database: str = "neo4j",
     namespace: str = "",
@@ -351,13 +350,13 @@ def create_mcp_server(
             embedding_property = index_info[0]["properties"][0] if index_info[0]["properties"] else None
             logger.debug(f"Embedding property for index '{vector_index}': {embedding_property}")
 
-            # Generate embedding
+            # Generate embedding using LiteLLM (supports multiple providers)
             logger.debug(f"Generating embedding with model: {embedding_model}")
-            embedding_response = openai_client.embeddings.create(
-                input=text_query,
-                model=embedding_model
+            embedding_response = litellm.embedding(
+                model=embedding_model,
+                input=[text_query]
             )
-            query_embedding = embedding_response.data[0].embedding
+            query_embedding = embedding_response.data[0]["embedding"]
 
             # Fetch more results to avoid local maximum
             fetch_k = max(top_k * 2, 100)
@@ -718,14 +717,14 @@ def create_mcp_server(
             # Prepare parameters
             query_params = dict(params)
 
-            # Generate embedding if vector_query provided
+            # Generate embedding if vector_query provided (using LiteLLM)
             if vector_query:
                 logger.debug(f"Generating embedding for vector_query: {vector_query}")
-                embedding_response = openai_client.embeddings.create(
-                    input=vector_query,
-                    model=embedding_model
+                embedding_response = litellm.embedding(
+                    model=embedding_model,
+                    input=[vector_query]
                 )
-                query_params["vector_embedding"] = embedding_response.data[0].embedding
+                query_params["vector_embedding"] = embedding_response.data[0]["embedding"]
 
             # Add fulltext query if provided
             if fulltext_query:
@@ -776,7 +775,6 @@ async def main(
     username: str,
     password: str,
     database: str,
-    openai_api_key: str,
     embedding_model: str = "text-embedding-3-small",
     transport: Literal["stdio", "sse", "http"] = "stdio",
     namespace: str = "",
@@ -788,13 +786,12 @@ async def main(
 ) -> None:
     """Main entry point for the Neo4j GraphRAG MCP Server."""
     logger.info("Starting Neo4j GraphRAG MCP Server")
+    logger.info(f"Using embedding model: {embedding_model}")
 
     neo4j_driver = AsyncGraphDatabase.driver(db_url, auth=(username, password))
-    openai_client = OpenAI(api_key=openai_api_key)
 
     mcp = create_mcp_server(
         neo4j_driver=neo4j_driver,
-        openai_client=openai_client,
         embedding_model=embedding_model,
         database=database,
         namespace=namespace,

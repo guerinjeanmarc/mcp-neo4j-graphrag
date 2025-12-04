@@ -12,11 +12,10 @@ def main():
     parser.add_argument("--username", default=None, help="Neo4j username")
     parser.add_argument("--password", default=None, help="Neo4j password")
     parser.add_argument("--database", default=None, help="Neo4j database name")
-    parser.add_argument("--openai-api-key", default=None, help="OpenAI API key for embeddings")
     parser.add_argument(
         "--embedding-model", 
         default=None, 
-        help="OpenAI embedding model (default: text-embedding-3-small)"
+        help="Embedding model (default: text-embedding-3-small). Supports OpenAI, Azure, Bedrock, Cohere, etc. via LiteLLM."
     )
     parser.add_argument(
         "--transport", default=None, help="Transport type (stdio, sse, http)"

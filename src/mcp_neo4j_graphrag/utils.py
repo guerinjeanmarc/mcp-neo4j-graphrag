@@ -184,20 +184,17 @@ def process_config(args: argparse.Namespace) -> dict[str, Union[str, int, None]]
     else:
         config["database"] = os.getenv("NEO4J_DATABASE") or "neo4j"
 
-    # Parse OpenAI API key
-    if args.openai_api_key is not None:
-        config["openai_api_key"] = args.openai_api_key
-    else:
-        config["openai_api_key"] = os.getenv("OPENAI_API_KEY")
-        if not config["openai_api_key"]:
-            logger.error("Error: No OpenAI API key provided. This is required for embeddings.")
-            raise ValueError("OPENAI_API_KEY is required")
-
-    # Parse embedding model
+    # Parse embedding model (LiteLLM supports multiple providers)
     if args.embedding_model is not None:
         config["embedding_model"] = args.embedding_model
     else:
-        config["embedding_model"] = os.getenv("OPENAI_EMBEDDING_MODEL") or "text-embedding-3-small"
+        config["embedding_model"] = os.getenv("EMBEDDING_MODEL") or os.getenv("OPENAI_EMBEDDING_MODEL")
+        if not config["embedding_model"]:
+            config["embedding_model"] = "text-embedding-3-small"
+            logger.warning(
+                "EMBEDDING_MODEL not set. Defaulting to 'text-embedding-3-small' (OpenAI). "
+                "Set EMBEDDING_MODEL env var to use other providers (e.g., 'azure/...', 'bedrock/...', 'cohere/...')."
+            )
 
     # Parse namespace
     if args.namespace is not None:
