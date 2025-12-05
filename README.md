@@ -77,7 +77,7 @@ Discover the graph schema, vector indexes, and fulltext indexes.
 💡 The agent should automatically call this tool first before using other tools to understand the schema and indexes of the database.
 
 **Example prompt:**
-> "What indexes and node types are available in the database?"
+> "What is inside the database?"
 
 ### `vector_search`
 
@@ -86,7 +86,7 @@ Semantic similarity search using embeddings.
 **Parameters:** `text_query`, `vector_index`, `top_k`, `return_properties`
 
 **Example prompt:**
-> "Search for movies about artificial intelligence using the moviePlotsEmbedding index"
+> "What movies are about artificial intelligence?"
 
 ### `fulltext_search`
 
@@ -95,7 +95,7 @@ Keyword search with Lucene syntax (AND, OR, wildcards, fuzzy).
 **Parameters:** `text_query`, `fulltext_index`, `top_k`, `return_properties`
 
 **Example prompt:**
-> "Find people named 'Tom' using the personFulltext index"
+> "find people named Tom"
 
 ### `read_neo4j_cypher`
 
@@ -113,7 +113,7 @@ Combine vector/fulltext search with Cypher queries. Use `$vector_embedding` and 
 **Parameters:** `cypher_query`, `vector_query`, `fulltext_query`, `params`
 
 **Example prompt:**
-> "Find movies similar to 'time travel adventure', then show me their directors and genres"
+> "In one query, what are the directors and genres of the movies about 'time travel adventure' "
 
 ## Configuration
 
